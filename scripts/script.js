@@ -126,6 +126,7 @@ function validateFrom(event) {
             // check if the user already exists based on username
             const userExists = users.some(user => user.toLowerCase().startsWith(`username=${username.toLowerCase()}`));
             const emailExists = users.some(user => user.toLowerCase().includes(`email=${email.toLowerCase()}`));
+            
 
             if (userExists && !emailExists) {
                 alert('That username is already taken. Please choose another username.');
@@ -155,4 +156,83 @@ function validateFrom(event) {
         event.preventDefault();
         return false;
     }
+}
+
+// ============ Login Form Validations ============ //
+//           ======  Part 4 ======
+
+// add event listener when the submit button is clicked
+
+// validate username for login form
+function usernameLoginValidation() {
+    if (usernameLogin.value.trim() === "") {
+        alert("Username field can not be empty.")
+        usernameLogin.focus();
+        return false;
+    }
+    return usernameLogin.value.trim();
+}
+
+// validate password for login form
+function passwordLoginValidation() {
+    if (passwordLogin.value === "") {
+        alert("Password field can not be empty.")
+        passwordLogin.focus();
+        return false;
+    }
+    return passwordLogin.value;
+
+}
+
+formLogin.addEventListener('submit', validateLogin);
+
+function validateLogin(event) {
+    event.preventDefault();
+
+    const username = usernameLoginValidation();
+    const password = passwordLoginValidation();
+    console.log('Username:', username); // Ensure the username is retrieved correctly
+    console.log('Password:', password); // Ensure the password is retrieved correctly
+
+    //if the validation of username or password fails, return false
+    if (!username || !password) {
+        console.log('Validation failed');
+        return false;
+    }
+
+   // Retrieve users from localStorage as a string
+   let users = localStorage.getItem('users');
+   console.log('Users from localStorage:', users); // Check if we retrieve the users correctly
+
+   // Split the users string into an array based on the pipe '|' separator
+   users = users ? users.split('|') : [];
+   console.log('Users after split:', users); // Check the users array after splitting
+
+   // Iterate over the user data to find a matching username
+   let user = null;
+   for (let i = 0; i < users.length; i += 3) { // Increment by 3 to reach the next username
+       const storedUsername = users[i].split('=')[1]; 
+       const storedPassword = users[i + 2].split('=')[1]; 
+
+       // username check
+       if (storedUsername.toLowerCase() === username.toLowerCase()) {
+           user = { username: storedUsername, password: storedPassword };
+           break;
+       }
+   }
+
+   if (user) {
+       // Check if the entered password matches the stored password
+       if (user.password === password) {
+           alert('Login Successful!');
+           formLogin.reset(); // Clear the form after successful login
+           return true; // Allow form submission (or perform actions after login)
+       } else {
+           alert('Incorrect Password. Please try again.');
+           return false; // Prevent form submission due to incorrect password
+       }
+   } else {
+       alert('User does not exist. Please register.');
+       return false; // Prevent form submission if user doesn't exist
+   }
 }
